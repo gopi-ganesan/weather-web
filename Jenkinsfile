@@ -1,89 +1,90 @@
-pieline{
-    agent {
-        label 'dev'
-    }
-        environment{
-            aws_account_id="562404438689"
-            aws_region="us-east-1"
-            ecr_repos_name="weather-app-repo"
-            ecr_registry="${aws_account_id}.dkr.ecr.${aws_region}.amazonaws.com"
-            ecs_cluster_name="weather-app-cluster"
-            ecs_service_name="weather-app-service"
-            images_Tag="E1"
-            
-        }
+pipeline {
+    agent { label 'dev' }
 
-    stages{
-        stage('colone repo'){
-            steps{
+    environment {
+        AWS_ACCOUNT_ID = "562404438689"  
+        AWS_REGION = "us-east-1"
+        ECR_REPOS_NAME = "weather-app-repo"
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECS_CLUSTER_NAME = "weather-app-cluster"
+        ECS_SERVICE_NAME = "weather-app-service"
+        IMAGE_TAG = "E1"
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
                 git(
-                    url:'https://github.com/gopi-ganesan/weather-app.git',
-                    branch:'main',
-                    credentialsID:'github-token',
+                    url: 'https://github.com/gopi-ganesan/weather-app.git',
+                    branch: 'main',
+                    credentialsId: 'github-token'
                 )
             }
         }
 
-        stage('ECR login'){
-            steps{
-                echo'the ecr login staet'
-                withCredentials([[$class:'AmazonWebServicesCredentialsBinding',
-                credentialsId:'aws_cre']]){
-                    sh'''
-                    aws ecr get-login-password --region ${aws_region} | \
-                     docker login --username AWS --password-stdin ${ecr_registry}
-                    ''' 
+        stage('ECR Login') {
+            steps {
+                echo ' Logging in to ECR...'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws_cre'
+                ]]) {
+                    sh '''
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    '''
                 }
             }
         }
 
-        stage('build docker compose'){
-            steps{
-                echo 'build docker image'
-                sh'''
+        stage('Build with Docker Compose') {
+            steps {
+                echo ' Building Docker images using docker-compose...'
+                sh '''
                 docker-compose -f docker-compose.yml build
                 '''
             }
         }
 
-        stage('push docker image to ecr'){
-            steps{
-                echo 'push docker image to ecr'
+        stage('Push Docker Image to ECR') {
+            steps {
+                echo ' Pushing Docker image to ECR...'
                 sh '''
-                docker tag weather-app:e1 ${ecr_registry}/${ecr_repos_name}:${images_Tag}
-                docker push ${ecr_registry}/${ecr_repos_name}:${images_Tag}
+                docker tag weather-app:${IMAGE_TAG,,} ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
+                docker push ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
                 '''
             }
         }
 
-        stage('deploy to ecs'){
-            steps{
-                echo 'deploy to ecs'
-                withCredentials([[$class:'AmazonWebServicesCredentialsBinding',
-                credentialsId:'aws_cre']]){
-                sh '''
-                aws ecs update-service \
-                --cluster ${ecs_cluster_name} \
-                --service ${ecs_service_name} \
-                --force-new-deployment \
-                --region ${aws_region}
-                '''
+        stage('Deploy to ECS') {
+            steps {
+                echo ' Deploying new version to ECS...'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws_cre'
+                ]]) {
+                    sh '''
+                    aws ecs update-service \
+                        --cluster ${ECS_CLUSTER_NAME} \
+                        --service ${ECS_SERVICE_NAME} \
+                        --force-new-deployment \
+                        --region ${AWS_REGION}
+                    '''
                 }
             }
         }
     }
 
-    post{
-        always{
-            echo 'pipeline completed'
+    post {
+        always {
+            echo ' Pipeline completed'
         }
-
-        success{
-            echo 'pipeline seccessful'
+        success {
+            echo ' Deployment successful!'
         }
-
-        failure{
-            echo 'pipeline failed'
+        failure {
+            echo ' Pipeline failed — check the logs for details.'
         }
     }
 }
