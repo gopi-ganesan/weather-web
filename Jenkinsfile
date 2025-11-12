@@ -28,7 +28,7 @@ pieline{
             steps{
                 echo'the ecr login staet'
                 withCredentials([[$class:'AmazonWebServicesCredentialsBinding',
-                credentialsId:'aws-credentials']]){
+                credentialsId:'aws_cre']]){
                     sh'''
                     aws ecr get-login-password --region ${aws_region} | \
                      docker login --username AWS --password-stdin ${ecr_registry}
@@ -59,6 +59,8 @@ pieline{
         stage('deploy to ecs'){
             steps{
                 echo 'deploy to ecs'
+                withCredentials([[$class:'AmazonWebServicesCredentialsBinding',
+                credentialsId:'aws_cre']]){
                 sh '''
                 aws ecs update-service \
                 --cluster ${ecs_cluster_name} \
@@ -66,6 +68,7 @@ pieline{
                 --force-new-deployment \
                 --region ${aws_region}
                 '''
+                }
             }
         }
     }
