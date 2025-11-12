@@ -51,6 +51,7 @@ pipeline {
             steps {
                 echo ' Pushing Docker image to ECR...'
                 sh '''
+                #!/bin/bash
                 docker tag weather-app:${IMAGE_TAG,,} ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
                 docker push ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
                 '''
