@@ -17,8 +17,8 @@ pieline{
         stage('colone repo'){
             steps{
                 git(
-                    url:'',
-                    branch:'',
+                    url:'https://github.com/gopi-ganesan/weather-app.git',
+                    branch:'main',
                     credentialsID:'github-token',
                 )
             }
