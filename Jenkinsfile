@@ -8,7 +8,7 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECS_CLUSTER_NAME = "weather-app-cluster"
         ECS_SERVICE_NAME = "weather-app-service"
-        IMAGE_TAG = "E1"
+        IMAGE_TAG = "E2"
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
                 echo ' Logging in to ECR...'
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws_cre'
+                    credentialsId: 'aws'
                 ]]) {
                     sh '''
                     aws ecr get-login-password --region ${AWS_REGION} | \
@@ -62,7 +62,7 @@ pipeline {
                 echo ' Deploying new version to ECS...'
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws_cre'
+                    credentialsId: 'aws'
                 ]]) {
                     sh '''
                     aws ecs update-service \
