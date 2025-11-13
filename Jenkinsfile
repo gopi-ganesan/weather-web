@@ -1,9 +1,8 @@
 pipeline {
     agent { label 'dev' }
-    options { shell '/bin/bash' }
 
     environment {
-        AWS_ACCOUNT_ID = "562404438689"  
+        AWS_ACCOUNT_ID = "562404438689"
         AWS_REGION = "us-east-1"
         ECR_REPOS_NAME = "weather-app-repo"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -32,6 +31,7 @@ pipeline {
                     credentialsId: 'aws'
                 ]]) {
                     sh '''
+                    #!/bin/bash
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     '''
@@ -43,6 +43,7 @@ pipeline {
             steps {
                 echo ' Building Docker images using docker-compose...'
                 sh '''
+                #!/bin/bash
                 docker-compose -f docker-compose.yml build
                 '''
             }
@@ -53,7 +54,7 @@ pipeline {
                 echo ' Pushing Docker image to ECR...'
                 sh '''
                 #!/bin/bash
-                docker tag weather-app:${IMAGE_TAG,,} ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
+                docker tag weather-app:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
                 docker push ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
                 '''
             }
@@ -67,6 +68,7 @@ pipeline {
                     credentialsId: 'aws'
                 ]]) {
                     sh '''
+                    #!/bin/bash
                     aws ecs update-service \
                         --cluster ${ECS_CLUSTER_NAME} \
                         --service ${ECS_SERVICE_NAME} \
