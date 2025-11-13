@@ -1,5 +1,6 @@
 pipeline {
     agent { label 'dev' }
+    options { shell '/bin/bash' }
 
     environment {
         AWS_ACCOUNT_ID = "562404438689"  
