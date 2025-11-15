@@ -9,7 +9,7 @@ pipeline {
         ECS_CLUSTER_NAME = "weather-app-cl"
         ECS_SERVICE_NAME = "weather-app-se"
         IMAGE_TAG = "E5"
-        LOCAL_IMAGE_NAME = "weather-images"   
+        LOCAL_IMAGE_NAME = "weather-web"   
     }
 
     stages {
