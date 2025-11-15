@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'dev' }
+        agent { label 'dev' }
 
     environment {
         AWS_ACCOUNT_ID = "562404438689"
@@ -8,7 +8,7 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECS_CLUSTER_NAME = "weather-app-cluster"
         ECS_SERVICE_NAME = "weather-app-service"
-        IMAGE_TAG = "E2"
+        IMAGE_TAG = "E5"
     }
 
     stages {
@@ -18,8 +18,7 @@ pipeline {
                 git(
                     url: 'https://github.com/gopi-ganesan/weather-app.git',
                     branch: 'main',
-                    credentialsId: 'github-token'
-                )
+                    credentialsId:'github-token',                )
             }
         }
 
