@@ -1,5 +1,5 @@
 pipeline {
-        agent { label 'dev' }
+    agent { label 'dev' }
 
     environment {
         AWS_ACCOUNT_ID = "562404438689"
@@ -9,6 +9,7 @@ pipeline {
         ECS_CLUSTER_NAME = "weather-app-cluster"
         ECS_SERVICE_NAME = "weather-app-service"
         IMAGE_TAG = "E5"
+        LOCAL_IMAGE_NAME = "weather-app"   // important fix
     }
 
     stages {
@@ -18,7 +19,8 @@ pipeline {
                 git(
                     url: 'https://github.com/gopi-ganesan/weather-web.git',
                     branch: 'main',
-                    credentialsId:'github-token',                )
+                    credentialsId: 'github-token'
+                )
             }
         }
 
@@ -30,9 +32,8 @@ pipeline {
                     credentialsId: 'aws'
                 ]]) {
                     sh '''
-                    #!/bin/bash
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    aws ecr get-login-password --region ${AWS_REGION} \
+                    | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     '''
                 }
             }
@@ -42,20 +43,21 @@ pipeline {
             steps {
                 echo ' Building Docker images using docker-compose...'
                 sh '''
-                #!/bin/bash
                 docker-compose -f docker-compose.yml build
                 '''
             }
         }
 
-        stage('Push Docker Image to ECR') {
+        stage('Tag & Push Docker Image to ECR') {
             steps {
-                echo ' Pushing Docker image to ECR...'
-                sh '''
-                #!/bin/bash
-                docker tag weather-app:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
-                docker push ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
-                '''
+                script {
+                    echo ' Tagging & pushing image to ECR...'
+
+                    sh """
+                    docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
+                    docker push ${ECR_REGISTRY}/${ECR_REPOS_NAME}:${IMAGE_TAG}
+                    """
+                }
             }
         }
 
@@ -67,7 +69,6 @@ pipeline {
                     credentialsId: 'aws'
                 ]]) {
                     sh '''
-                    #!/bin/bash
                     aws ecs update-service \
                         --cluster ${ECS_CLUSTER_NAME} \
                         --service ${ECS_SERVICE_NAME} \
@@ -80,14 +81,8 @@ pipeline {
     }
 
     post {
-        always {
-            echo ' Pipeline completed'
-        }
-        success {
-            echo ' Deployment successful!'
-        }
-        failure {
-            echo ' Pipeline failed — check the logs for details.'
-        }
+        always { echo ' Pipeline completed' }
+        success { echo ' Deployment successful!' }
+        failure { echo ' Pipeline failed — check logs.' }
     }
 }
