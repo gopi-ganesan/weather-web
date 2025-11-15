@@ -16,7 +16,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git(
-                    url: 'https://github.com/gopi-ganesan/weather-app.git',
+                    url: 'https://github.com/gopi-ganesan/weather-web.git',
                     branch: 'main',
                     credentialsId:'github-token',                )
             }
