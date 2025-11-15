@@ -8,8 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm install build
-
+RUN npm run build
 
 FROM nginx:alpine-slim
 
