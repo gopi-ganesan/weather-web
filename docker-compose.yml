@@ -1,8 +1,8 @@
 version: '3.8'
 services:
   weather-app:
-    image: weather-app:c1
-    container_name: weather-cN
+    image: weather-app
+    container_name: weather
     ports:
       - "80:80"
     restart: always
