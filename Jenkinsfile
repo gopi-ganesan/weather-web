@@ -4,12 +4,12 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = "562404438689"
         AWS_REGION = "us-east-1"
-        ECR_REPOS_NAME = "weather-app-repo"
+        ECR_REPOS_NAME = "frontend-movie"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECS_CLUSTER_NAME = "weather-app-cluster"
         ECS_SERVICE_NAME = "weather-app-service"
         IMAGE_TAG = "E5"
-        LOCAL_IMAGE_NAME = "weather-app"   // important fix
+        LOCAL_IMAGE_NAME = "weather-app"   
     }
 
     stages {
