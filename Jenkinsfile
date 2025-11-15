@@ -8,7 +8,7 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECS_CLUSTER_NAME = "weather-cl"
         ECS_SERVICE_NAME = "weather-service"
-        IMAGE_TAG = "E5"
+        IMAGE_TAG = "E6"
         LOCAL_IMAGE_NAME = "weather-app"   
     }
 
